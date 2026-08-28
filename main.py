@@ -1,10 +1,5 @@
-import pandas as pd 
 import numpy as np
-import matplotlib.pyplot as plt
 import math
-
-from scipy.stats.distributions import norm
-
 
 # input : S0, K(strike), T(Maturité), r(taux sans risque), sigma(vol), Call/Put)
 S0 = float(input("Inital stock price (S0): "))
