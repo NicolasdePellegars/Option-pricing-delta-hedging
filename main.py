@@ -1,5 +1,6 @@
 import numpy as np
 import math
+from scipy.stats import norm 
 
 # input : S0, K(strike), T(Maturité), r(taux sans risque), sigma(vol), Call/Put)
 S0 = float(input("Inital stock price (S0): "))
@@ -22,13 +23,21 @@ def payoff(St, K, option_type):
 # St = Prix instant t  		  μ : Rendement espéré 
 # σ	= Volatilité			  dWt : Mouvement brownien
 
-# Pricing par BS analystique 
-def BS_analytical(S0,K,T,r,sigma,option_type):
-    #N(d1) = Delta du Call
-    d1 = (math.log(S0 / K) + (r + 0.5 * sigma**2) * T) / (sigma * math.sqrt(T))
+
+def compute_d1_d2(S0, K, T, r, sigma):
+    #N(d1) = Delta du Call (avec N cdf de la loi normale)
+    d1 = np.log(S0 / K) + (r + 0.5 * sigma**2) * T / (sigma * np.sqrt(T))
 
     #N(d2) est la proba risque neutre que l'option dépasse le strike
-    d2 = d1 - sigma * math.sqrt(T)
+    d2 = d1 - sigma * np.sqrt(T)
+    return d1, d2
+
+d1,d2 = compute_d1_d2(S0, K, T, r, sigma)
+
+# Pricing par BS analystique 
+def BS_analytical(S0,K,T,r,sigma,option_type):
+
+    #d1,d2 = compute_d1_d2(S0, K, T, r, sigma)
 
     if option_type == "call":
         price = S0 * norm.cdf(d1) - K * math.exp(-r * T) * norm.cdf(d2)
@@ -38,7 +47,7 @@ def BS_analytical(S0,K,T,r,sigma,option_type):
 
     return price
 
-def Monte_Carlo (S0, K, T, r, sigma, option_type, N=100000):
+def Monte_Carlo (S0, K, T, r, sigma, option_type, N=10000000):
 
     Z = np.random.standard_normal(N)
     ST = S0 * np.exp((r - 0.5 * sigma**2) * T + sigma * np.sqrt(T) * Z) #Formule donnée par BS
@@ -61,5 +70,7 @@ print("Black-Scholes Price: ", bs_price)
 print("Monte Carlo Price: ", mc_price)
 
 
+#Calcul des greeks à partir de la formule BS analytique 
 
-#Calcul du delta
+#Delta 
+delta = norm.cdf(d1) if option_type == "call" else -norm.cdf(-d1)
