@@ -172,7 +172,7 @@ def delta_hedging_call(S0, K, T, r, sigma, n_steps):
     # 1 Simulation d'une trajectoire du sous-jacent
     stock_path = simulate_stock_path(S0, T, r, sigma, n_steps)
 
-    # 2. Prix initial de l'option
+    # 2 Prix initial de l'option
     option_price = BS_analytical(S0, K, T, r, sigma, "call")
 
     # 3. Delta initial
